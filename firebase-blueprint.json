@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil dan progres belajar per pengguna di Mufrodat Fun",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["admin", "student"] },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "wordsLearned": { "type": "number" },
+        "quizzesCompleted": { "type": "number" },
+        "garticScore": { "type": "number" },
+        "garticGamesPlayed": { "type": "number" },
+        "achievements": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "role", "xp", "level"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Koleksi data akun dan progres per user, hanya pemilik akun yang dapat membaca dan mengubah datanya sendiri"
+    }
+  }
+}

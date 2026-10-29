@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'muhammadfikrialfaroby@gmail.com' ||
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)))
+      );
+    }
+
+    // User Profile Validation helper
+    function isValidUserProfile(data) {
+      return data.uid == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.role in ['admin', 'student'] &&
+             data.xp is number && data.xp >= 0 &&
+             data.level is number && data.level >= 1;
+    }
+
+    // Users Collection: Setiap user HANYA bisa membaca dan menulis datanya sendiri
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if false; // Mencegah scraping data PII antar pengguna
+
+      allow create: if isValidId(userId) &&
+                       isOwner(userId) &&
+                       isValidUserProfile(request.resource.data);
+
+      allow update: if isValidId(userId) &&
+                       isOwner(userId) &&
+                       isValidUserProfile(request.resource.data) &&
+                       request.resource.data.uid == resource.data.uid; // uid tidak boleh diubah
+
+      allow delete: if isValidId(userId) && (isOwner(userId) || isAdmin());
+    }
+
+    // Mufrodat Custom Collection: Pembacaan oleh santri terautentikasi, penulisan hanya oleh admin
+    match /mufrodat/{mufrodatId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

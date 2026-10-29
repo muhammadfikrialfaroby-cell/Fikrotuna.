@@ -50,12 +50,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
     setError('');
     setIsLoading(true);
     try {
-      const res = await authService.loginWithGoogle(
-        'muhammadfikrialfaroby@gmail.com',
-        'Pelajar Mufrodat (Google)'
-      );
+      const res = await authService.loginWithGoogle();
       if (res.success) {
         onSuccess();
+      } else {
+        setError(res.message || 'Gagal login dengan Google');
       }
     } catch (err: any) {
       setError(err.message || 'Gagal login dengan Google');
