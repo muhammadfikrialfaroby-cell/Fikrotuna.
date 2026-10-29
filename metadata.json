@@ -1,0 +1,6 @@
+{
+  "name": "Mufrodat Fun - Belajar Bahasa Arab & Gartic Game",
+  "description": "Media pembelajaran mufrodat bahasa Arab interaktif dengan materi tematik, audio pelafalan, kuis seru, dan game tebak gambar ala Gartic.io berdaya AI Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
